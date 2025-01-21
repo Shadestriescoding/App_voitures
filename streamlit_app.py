@@ -6,6 +6,7 @@ from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
+import re
 
 # Configuration de la page
 st.set_page_config(
@@ -40,12 +41,86 @@ st.markdown("""
         background: white;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         margin-bottom: 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .status-validated {
+        color: green;
+        font-weight: bold;
+    }
+    .status-rejected {
+        color: red;
+        font-weight: bold;
+    }
+    .status-pending {
+        color: orange;
+        font-weight: bold;
+    }
+    .badge-container {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        z-index: 1;
+    }
+    .match-badge {
+        background: linear-gradient(135deg, #4CAF50, #45a049);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 20px;
+        font-size: 0.8em;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .favorite-badge {
+        background: linear-gradient(135deg, #FF4B82, #FF6B6B);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 20px;
+        font-size: 0.8em;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .premium-card {
+        border: 2px solid gold;
+        background: linear-gradient(to bottom right, rgba(255,215,0,0.1), transparent);
+    }
+    .car-info {
+        margin-top: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .car-price {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #2196F3;
+    }
+    .car-stats {
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.5rem;
+        color: #666;
+    }
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# Fonction pour extraire l'image d'une annonce
-def extraire_image_annonce(url):
+# Chargement des données de référence
+@st.cache_data
+def charger_references():
+    marques_df = pd.read_csv('data/marques.csv')
+    equipements_df = pd.read_csv('data/equipements.csv')
+    return marques_df, equipements_df
+
+# Fonction pour extraire les informations d'une annonce
+def extraire_infos_annonce(url):
     try:
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
@@ -53,17 +128,35 @@ def extraire_image_annonce(url):
         
         domain = urlparse(url).netloc
         
-        default_images = {
-            'www.lacentrale.fr': 'https://images.caradisiac.com/logos/5/0/6/2/275062/S7-guide-occasion-bmw-serie-3-e46-1998-2005-une-valeur-sure-175822.jpg',
-            'www.leboncoin.fr': 'https://images.caradisiac.com/logos/5/0/6/2/275062/S7-guide-occasion-bmw-serie-3-e46-1998-2005-une-valeur-sure-175822.jpg',
-            'www.autoscout24.fr': 'https://images.caradisiac.com/logos/5/0/6/2/275062/S7-guide-occasion-bmw-serie-3-e46-1998-2005-une-valeur-sure-175822.jpg'
-        }
-        
-        return default_images.get(domain, 'https://via.placeholder.com/400x300?text=Image+non+disponible')
-        
+        if 'autoscout24.fr' in domain:
+            response = requests.get(url, headers=headers)
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            # Extraction des informations (à adapter selon la structure du site)
+            prix = soup.find('span', {'class': 'price'})
+            prix = int(re.sub(r'[^\d]', '', prix.text)) if prix else 0
+            
+            titre = soup.find('h1').text.strip()
+            marque, modele = titre.split(' ', 1)
+            
+            annee = soup.find('span', {'class': 'year'})
+            annee = int(annee.text) if annee else 2000
+            
+            return {
+                'prix': prix,
+                'marque': marque,
+                'modele': modele,
+                'annee': annee,
+                'image_url': soup.find('img', {'class': 'gallery-picture'})['src'] if soup.find('img', {'class': 'gallery-picture'}) else ''
+            }
+            
+        elif 'leboncoin.fr' in domain:
+            # Similaire pour LeBonCoin
+            pass
+            
     except Exception as e:
-        st.warning(f"Impossible d'extraire l'image de l'annonce : {str(e)}")
-        return 'https://via.placeholder.com/400x300?text=Image+non+disponible'
+        st.warning(f"Impossible d'extraire les informations de l'annonce : {str(e)}")
+        return None
 
 # Fonction pour charger les données
 @st.cache_data
@@ -73,7 +166,8 @@ def charger_donnees():
     return pd.DataFrame(columns=[
         'Marque', 'Modele', 'Annee', 'Prix', 'Consommation',
         'Cout_Assurance', 'Equipements', 'Fiabilite',
-        'Date_Ajout', 'Lien_Annonce', 'Image_URL'
+        'Date_Ajout', 'Lien_Annonce', 'Image_URL',
+        'Status', 'Selection_Franck', 'Notes'
     ])
 
 # Fonction pour sauvegarder les données
@@ -91,8 +185,16 @@ def afficher_galerie(df_filtered):
     for idx, row in df_filtered.iterrows():
         with cols[idx % 3]:
             with st.container():
+                # Status badge
+                status_class = {
+                    "Validé": "status-validated",
+                    "Rejeté": "status-rejected",
+                    "En attente": "status-pending"
+                }.get(row['Status'], "status-pending")
+                
                 st.markdown(f"""
                 <div class="car-card">
+                    <div class="{status_class}">{row['Status']}</div>
                     <h3>{row['Marque']} {row['Modele']}</h3>
                     <p>Année: {row['Annee']} | Prix: {row['Prix']:,.0f} €</p>
                 </div>
@@ -122,28 +224,55 @@ def calculer_score_vehicule(vehicule, criteres):
         if nom == 'budget':
             if vehicule['Prix'] <= critere['valeur']:
                 score += critere['poids']
+            else:
+                # Score partiel si proche du budget
+                depassement = (vehicule['Prix'] - critere['valeur']) / critere['valeur']
+                if depassement <= 0.1:  # 10% de dépassement max
+                    score += critere['poids'] * (1 - depassement)
         elif nom == 'annee_min':
             if vehicule['Annee'] >= critere['valeur']:
                 score += critere['poids']
+            else:
+                # Score partiel si proche de l'année minimale
+                diff_annees = critere['valeur'] - vehicule['Annee']
+                if diff_annees <= 2:  # 2 ans de différence max
+                    score += critere['poids'] * (1 - diff_annees/2)
         elif nom == 'conso_max':
             if vehicule['Consommation'] <= critere['valeur']:
                 score += critere['poids']
+            else:
+                # Score partiel si proche de la consommation max
+                depassement = (vehicule['Consommation'] - critere['valeur']) / critere['valeur']
+                if depassement <= 0.2:  # 20% de dépassement max
+                    score += critere['poids'] * (1 - depassement)
         elif nom == 'fiabilite_min':
             if vehicule['Fiabilite'] >= critere['valeur']:
                 score += critere['poids']
+            else:
+                # Score partiel si proche de la fiabilité minimale
+                diff = critere['valeur'] - vehicule['Fiabilite']
+                if diff <= 2:  # 2 points de différence max
+                    score += critere['poids'] * (1 - diff/2)
         elif nom == 'assurance_max':
             if vehicule['Cout_Assurance'] <= critere['valeur']:
                 score += critere['poids']
+            else:
+                # Score partiel si proche du coût max
+                depassement = (vehicule['Cout_Assurance'] - critere['valeur']) / critere['valeur']
+                if depassement <= 0.2:  # 20% de dépassement max
+                    score += critere['poids'] * (1 - depassement)
         elif nom == 'equipements':
             equips_vehicule = set(map(str.strip, vehicule['Equipements'].lower().split(',')))
             equips_souhaites = set(map(str.strip, critere['valeur'].lower().split(',')))
             if equips_souhaites:
-                score += critere['poids'] * len(equips_vehicule.intersection(equips_souhaites)) / len(equips_souhaites)
+                match_ratio = len(equips_vehicule.intersection(equips_souhaites)) / len(equips_souhaites)
+                score += critere['poids'] * match_ratio
     
     return (score / poids_total) * 100
 
 # Chargement des données
 df = charger_donnees()
+marques_df, equipements_df = charger_references()
 
 # Initialisation de la session state
 if 'page' not in st.session_state:
@@ -152,6 +281,8 @@ if 'search_query' not in st.session_state:
     st.session_state.search_query = ""
 if 'selected_car' not in st.session_state:
     st.session_state.selected_car = None
+if 'recherche_active' not in st.session_state:
+    st.session_state.recherche_active = None
 
 # Ajout des variables de session pour la configuration
 if 'config_criteres' not in st.session_state:
@@ -168,6 +299,14 @@ if 'config_criteres' not in st.session_state:
 with st.sidebar:
     st.title("🚗 Navigation")
     
+    # Sélection de la recherche active
+    recherches = ["Toutes"] + (df['Notes'].unique().tolist() if not df.empty else [])
+    st.session_state.recherche_active = st.selectbox(
+        "Recherche active",
+        recherches,
+        index=0
+    )
+    
     # Barre de recherche
     search = st.text_input("🔍 Rechercher un modèle", 
                           value=st.session_state.search_query,
@@ -175,7 +314,15 @@ with st.sidebar:
     
     # Filtres
     st.subheader("Filtres")
-    marques = st.multiselect("Marque", options=sorted(df['Marque'].unique()) if not df.empty else [])
+    status = st.multiselect(
+        "Statut",
+        ["En attente", "Validé", "Rejeté"]
+    )
+    
+    marques = st.multiselect(
+        "Marque",
+        sorted(marques_df['marque'].unique())
+    )
     
     prix_range = st.slider(
         "Prix (€)",
@@ -183,14 +330,6 @@ with st.sidebar:
         max_value=int(df['Prix'].max()) if not df.empty else 100000,
         value=(int(df['Prix'].min()) if not df.empty else 0, 
                int(df['Prix'].max()) if not df.empty else 100000)
-    )
-    
-    annee_range = st.slider(
-        "Année",
-        min_value=int(df['Annee'].min()) if not df.empty else 1998,
-        max_value=int(df['Annee'].max()) if not df.empty else datetime.now().year,
-        value=(int(df['Annee'].min()) if not df.empty else 1998,
-               int(df['Annee'].max()) if not df.empty else datetime.now().year)
     )
     
     # Navigation
@@ -206,58 +345,193 @@ with st.sidebar:
 
 # Filtrage des données
 df_filtered = df.copy()
+
+if st.session_state.recherche_active != "Toutes":
+    df_filtered = df_filtered[df_filtered['Notes'] == st.session_state.recherche_active]
+
 if search:
     search = search.lower()
     df_filtered = df_filtered[
         df_filtered['Marque'].str.lower().str.contains(search) |
         df_filtered['Modele'].str.lower().str.contains(search)
     ]
+
+if status:
+    df_filtered = df_filtered[df_filtered['Status'].isin(status)]
+
 if marques:
     df_filtered = df_filtered[df_filtered['Marque'].isin(marques)]
+
 df_filtered = df_filtered[
     (df_filtered['Prix'] >= prix_range[0]) &
-    (df_filtered['Prix'] <= prix_range[1]) &
-    (df_filtered['Annee'] >= annee_range[0]) &
-    (df_filtered['Annee'] <= annee_range[1])
+    (df_filtered['Prix'] <= prix_range[1])
 ]
 
 # Affichage de la page principale
 if st.session_state.page == "galerie":
     st.title("🖼️ Galerie des véhicules")
-    afficher_galerie(df_filtered)
+    
+    # Calcul des scores pour tous les véhicules
+    for idx, vehicule in df_filtered.iterrows():
+        score = calculer_score_vehicule(vehicule, st.session_state.config_criteres)
+        df_filtered.at[idx, 'Score_Match'] = score
+    
+    # Tri des véhicules
+    tri = st.selectbox(
+        "Trier par",
+        ["Score de correspondance ↓", "Date d'ajout ↓", "Prix ↑", "Prix ↓", "Année ↓", "Fiabilité ↓"]
+    )
+    
+    if tri == "Score de correspondance ↓":
+        df_filtered = df_filtered.sort_values('Score_Match', ascending=False)
+    elif tri == "Date d'ajout ↓":
+        df_filtered = df_filtered.sort_values('Date_Ajout', ascending=False)
+    elif tri == "Prix ↑":
+        df_filtered = df_filtered.sort_values('Prix')
+    elif tri == "Prix ↓":
+        df_filtered = df_filtered.sort_values('Prix', ascending=False)
+    elif tri == "Année ↓":
+        df_filtered = df_filtered.sort_values('Annee', ascending=False)
+    elif tri == "Fiabilité ↓":
+        df_filtered = df_filtered.sort_values('Fiabilite', ascending=False)
+    
+    # Affichage en grille
+    cols = st.columns(3)
+    for idx, row in df_filtered.iterrows():
+        with cols[idx % 3]:
+            with st.container():
+                card_class = "car-card premium-card" if row['Score_Match'] >= 80 else "car-card"
+                
+                st.markdown(f"""
+                <div class="{card_class}">
+                    <div class="badge-container">
+                        <div class="match-badge">Match {row['Score_Match']:.0f}%</div>
+                        {"<div class='favorite-badge'>❤️ Coup de cœur</div>" if row['Coup_de_Coeur'] else ""}
+                    </div>
+                    <div class="{status_class}">{row['Status']}</div>
+                    <h3>{row['Marque']} {row['Modele']}</h3>
+                    <div class="car-info">
+                        <span>Année: {row['Annee']}</span>
+                        <span class="car-price">{row['Prix']:,.0f} €</span>
+                    </div>
+                    <div class="car-stats">
+                        <span>🔋 {row['Fiabilite']}/10</span>
+                        <span>⛽ {row['Consommation']}L/100km</span>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                if row['Image_URL']:
+                    st.image(row['Image_URL'], 
+                            use_column_width=True,
+                            caption=None)
+                
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    if row['Lien_Annonce']:
+                        st.markdown(f"[🔗 Annonce]({row['Lien_Annonce']})")
+                with col2:
+                    if st.button("📊 Détails", key=f"details_{idx}"):
+                        st.session_state.page = "details"
+                        st.session_state.selected_car = idx
+                with col3:
+                    if st.button("❤️", key=f"favorite_{idx}"):
+                        df.at[idx, 'Coup_de_Coeur'] = not df.at[idx, 'Coup_de_Coeur']
+                        sauvegarder_donnees(df)
+                        st.rerun()
+                
+                if row['Notes']:
+                    st.info(f"📝 {row['Notes']}")
+                
+                st.markdown("---")
 
 elif st.session_state.page == "ajouter":
     st.title("📝 Ajouter un véhicule")
+    
+    # Option pour ajouter via URL
+    url_annonce = st.text_input("URL de l'annonce (AutoScout24, LeBonCoin)", 
+                               help="Collez l'URL de l'annonce pour remplir automatiquement les informations")
+    
+    infos_annonce = None
+    if url_annonce:
+        infos_annonce = extraire_infos_annonce(url_annonce)
+        if infos_annonce:
+            st.success("✅ Informations extraites avec succès!")
     
     with st.form("formulaire_vehicule"):
         col1, col2 = st.columns(2)
         
         with col1:
-            marque = st.text_input("Marque", help="Ex: BMW, Mercedes, Audi...")
-            modele = st.text_input("Modèle", help="Ex: E46 330i, C200, A4...")
-            annee = st.number_input("Année", 
-                                  min_value=1998, 
-                                  max_value=datetime.now().year,
-                                  value=2020)
-            prix = st.number_input("Prix (€)", 
-                                 min_value=0, 
-                                 value=10000)
+            # Utilisation des données de référence pour les marques et modèles
+            marque = st.selectbox(
+                "Marque",
+                options=sorted(marques_df['marque'].unique()),
+                index=0 if not infos_annonce else list(marques_df['marque'].unique()).index(infos_annonce['marque'])
+            )
+            
+            modeles_disponibles = marques_df[marques_df['marque'] == marque]['modele'].unique()
+            modele = st.selectbox(
+                "Modèle",
+                options=modeles_disponibles,
+                index=0 if not infos_annonce else list(modeles_disponibles).index(infos_annonce['modele'])
+            )
+            
+            annee = st.number_input(
+                "Année",
+                min_value=1998,
+                max_value=datetime.now().year,
+                value=infos_annonce['annee'] if infos_annonce else 2020
+            )
+            
+            prix = st.number_input(
+                "Prix (€)",
+                min_value=0,
+                value=infos_annonce['prix'] if infos_annonce else 10000
+            )
             
         with col2:
-            consommation = st.number_input("Consommation (L/100 km)",
-                                         min_value=0.0,
-                                         max_value=30.0,
-                                         value=7.0,
-                                         step=0.1)
-            cout_assurance = st.number_input("Coût Assurance (€/an)",
-                                           min_value=0,
-                                           value=500)
-            fiabilite = st.slider("Fiabilité", 1, 10, 5)
+            consommation = st.number_input(
+                "Consommation (L/100 km)",
+                min_value=0.0,
+                max_value=30.0,
+                value=7.0,
+                step=0.1
+            )
             
-        equipements = st.text_area("Équipements",
-                                 help="Liste des équipements, séparés par des virgules")
-        lien_annonce = st.text_input("Lien de l'annonce",
-                                   help="URL de l'annonce (La Centrale, LeBonCoin, AutoScout24...)")
+            cout_assurance = st.number_input(
+                "Coût Assurance (€/an)",
+                min_value=0,
+                value=500
+            )
+            
+            fiabilite = st.slider(
+                "Fiabilité",
+                1, 10, 5
+            )
+        
+        # Sélection des équipements par catégorie
+        st.subheader("Équipements")
+        equipements_selectionnes = []
+        
+        for categorie in equipements_df['categorie'].unique():
+            col1, col2 = st.columns(2)
+            with col1:
+                st.write(f"**{categorie}**")
+            with col2:
+                equips = equipements_df[equipements_df['categorie'] == categorie]['equipement'].tolist()
+                for equip in equips:
+                    if st.checkbox(equip, help=equipements_df[equipements_df['equipement'] == equip]['description'].iloc[0]):
+                        equipements_selectionnes.append(equip)
+        
+        notes = st.text_area(
+            "Notes/Commentaires",
+            help="Ajoutez des notes ou commentaires sur le véhicule"
+        )
+        
+        recherche = st.text_input(
+            "Nom de la recherche",
+            help="Donnez un nom à cette recherche pour regrouper les véhicules similaires"
+        )
         
         submit = st.form_submit_button("Ajouter ce véhicule")
         
@@ -265,8 +539,6 @@ elif st.session_state.page == "ajouter":
             if not marque or not modele:
                 st.error("❌ La marque et le modèle sont obligatoires!")
             else:
-                image_url = extraire_image_annonce(lien_annonce) if lien_annonce else ""
-                
                 nouveau_vehicule = {
                     'Marque': marque,
                     'Modele': modele,
@@ -274,11 +546,15 @@ elif st.session_state.page == "ajouter":
                     'Prix': prix,
                     'Consommation': consommation,
                     'Cout_Assurance': cout_assurance,
-                    'Equipements': equipements,
+                    'Equipements': ", ".join(equipements_selectionnes),
                     'Fiabilite': fiabilite,
                     'Date_Ajout': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    'Lien_Annonce': lien_annonce,
-                    'Image_URL': image_url
+                    'Lien_Annonce': url_annonce,
+                    'Image_URL': infos_annonce['image_url'] if infos_annonce else "",
+                    'Status': "En attente",
+                    'Selection_Franck': False,
+                    'Notes': notes,
+                    'Recherche': recherche
                 }
                 df = pd.concat([df, pd.DataFrame([nouveau_vehicule])], ignore_index=True)
                 sauvegarder_donnees(df)

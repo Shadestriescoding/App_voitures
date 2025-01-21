@@ -445,7 +445,7 @@ def afficher_formulaire_config(recherches):
                     "Consommation maximum (L/100km)",
                     min_value=0.0,
                     max_value=20.0,
-                    value=float(st.session_state.config_criteres['conso_max']['valeur']),
+                    value=float(st.session_state.config_criteres.get('conso_max', {'valeur': 8.0})['valeur']),
                     step=0.5
                 )
             with col_conso2:

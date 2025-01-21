@@ -1,19 +1,41 @@
 categorie,equipement,description
-Confort,Climatisation,Climatisation automatique ou manuelle
-Confort,Cuir,Sellerie en cuir
-Confort,Sièges chauffants,Sièges avant chauffants
-Confort,Régulateur,Régulateur de vitesse
-Confort,Toit ouvrant,Toit ouvrant électrique
-Multimédia,GPS,Système de navigation
-Multimédia,Bluetooth,Connexion Bluetooth
-Multimédia,Autoradio CD,Lecteur CD avec commandes au volant
 Sécurité,ABS,Système antiblocage des roues
 Sécurité,ESP,Contrôle électronique de stabilité
-Sécurité,Airbags,Airbags conducteur et passager
-Sécurité,Radar recul,Aide au stationnement arrière
-Extérieur,Jantes alu,Jantes en alliage
-Extérieur,Xenon,Phares au xénon
-Extérieur,LED,Feux de jour LED
-Mécanique,Boite auto,Boîte de vitesses automatique
-Mécanique,PDC,Contrôle de distance parking
-Mécanique,Start/Stop,Système Start/Stop automatique 
+Sécurité,Airbags,Protection en cas de collision
+Sécurité,Régulateur de vitesse,Maintien automatique de la vitesse
+Sécurité,Limiteur de vitesse,Limitation de la vitesse maximale
+Sécurité,Aide au freinage d'urgence,Assistance au freinage en cas d'urgence
+Sécurité,Détecteur d'angles morts,Surveillance des angles morts
+Sécurité,Alerte franchissement de ligne,Avertissement en cas de sortie de voie
+Confort,Climatisation automatique,Régulation automatique de la température
+Confort,Climatisation manuelle,Réglage manuel de la température
+Confort,Sièges chauffants,Chauffage intégré aux sièges
+Confort,Sièges électriques,Réglages électriques des sièges
+Confort,Volant multifonction,Commandes intégrées au volant
+Confort,Accoudoir central,Accoudoir entre les sièges avant
+Confort,Vitres électriques,Lève-vitres électriques
+Confort,Rétroviseurs électriques,Réglages électriques des rétroviseurs
+Multimédia,Bluetooth,Connexion sans fil pour téléphone
+Multimédia,GPS,Système de navigation
+Multimédia,Écran tactile,Interface tactile pour le système multimédia
+Multimédia,Apple CarPlay,Intégration iPhone
+Multimédia,Android Auto,Intégration Android
+Multimédia,Prise USB,Connexion USB pour appareils
+Multimédia,Prise AUX,Entrée audio auxiliaire
+Multimédia,Chargeur sans fil,Recharge sans fil pour smartphone
+Extérieur,Jantes alliage,Jantes en alliage léger
+Extérieur,Toit ouvrant,Ouverture dans le toit
+Extérieur,Vitres teintées,Vitres arrière surteintées
+Extérieur,Phares LED,Éclairage à LED
+Extérieur,Phares xénon,Éclairage au xénon
+Extérieur,Feux de jour LED,Éclairage diurne à LED
+Extérieur,Radar de recul,Aide au stationnement arrière
+Extérieur,Caméra de recul,Visualisation arrière pour le stationnement
+Pratique,Banquette rabattable,Sièges arrière rabattables
+Pratique,Attache remorque,Dispositif d'attelage
+Pratique,Barres de toit,Rails pour porte-bagages
+Pratique,Hayon électrique,Ouverture/fermeture électrique du coffre
+Pratique,Démarrage sans clé,Démarrage par bouton
+Pratique,Accès sans clé,Ouverture des portes sans clé
+Pratique,Stop & Start,Arrêt/redémarrage automatique du moteur
+Pratique,Frein à main électrique,Frein de stationnement électrique 

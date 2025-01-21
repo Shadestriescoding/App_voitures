@@ -1,43 +1,52 @@
 # 🚗 Gestionnaire de Véhicules
 
-Application Streamlit permettant de gérer et visualiser une collection de véhicules, avec stockage des données dans un fichier CSV.
+Une application web moderne pour gérer et suivre vos recherches de véhicules, développée avec Streamlit.
 
-## ✨ Fonctionnalités
+## 🌟 Fonctionnalités
 
-- **Saisie des données** via un formulaire intuitif
-  - Marque et modèle du véhicule
-  - Année de mise en circulation (1998-2024)
-  - Prix et coût d'assurance
-  - Consommation moyenne
-  - Équipements
-  - Note de fiabilité
+- **Galerie de véhicules**
+  - Vue en grille ou en liste
+  - Tri par différents critères
+  - Filtres avancés
+  - Badges de score de correspondance
+  - Marquage des coups de cœur
 
-- **Visualisation interactive**
-  - Tableau filtrable par marque et année
-  - Graphiques dynamiques avec Plotly
-  - Statistiques rapides (moyennes)
+- **Ajout de véhicules**
+  - Formulaire complet
+  - Import automatique depuis AutoScout24
+  - Gestion des équipements
+  - Notes et commentaires
 
-- **Stockage persistant**
-  - Sauvegarde automatique dans `data.csv`
-  - Format compatible Excel/LibreOffice
+- **Système de scoring**
+  - Calcul automatique des scores de correspondance
+  - Critères personnalisables
+  - Pondération des critères
+  - Bonus pour les coups de cœur
+
+- **Statistiques**
+  - Graphiques interactifs
+  - Analyse des prix
+  - Distribution des scores
+  - Corrélations entre critères
+
+- **Export et partage**
+  - Génération de fiches PDF
+  - Partage de configurations
+  - Sauvegarde des recherches
 
 ## 🚀 Installation
 
-1. Clonez ce dépôt :
+1. Clonez le dépôt :
 ```bash
-git clone https://github.com/Shadestriescoding/App_voitures.git
-cd App_voitures
+git clone https://github.com/votre-username/gestionnaire-vehicules.git
+cd gestionnaire-vehicules
 ```
 
 2. Créez un environnement virtuel (recommandé) :
 ```bash
-# Windows
 python -m venv venv
-venv\Scripts\activate
-
-# Linux/macOS
-python3 -m venv venv
-source venv/bin/activate
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
 ```
 
 3. Installez les dépendances :
@@ -50,44 +59,53 @@ pip install -r requirements.txt
 streamlit run streamlit_app.py
 ```
 
-L'application sera accessible à l'adresse : http://localhost:8501
-
-## 📊 Utilisation
-
-1. **Ajout d'un véhicule**
-   - Remplissez le formulaire à gauche
-   - Cliquez sur "Ajouter ce véhicule"
-   - Une confirmation s'affiche
-
-2. **Consultation des données**
-   - Utilisez les filtres du tableau
-   - Explorez les différents graphiques
-   - Consultez les statistiques
-
-## 🌍 Déploiement sur Streamlit Cloud
-
-1. Créez un compte sur [Streamlit Cloud](https://streamlit.io/cloud)
-2. Connectez votre compte GitHub
-3. Sélectionnez ce dépôt pour le déploiement
-4. L'application sera accessible publiquement à l'adresse : https://appvoitures-aznirqvwpszinfp7vtf9vv.streamlit.app
-
-## 📁 Structure du Projet
+## 📁 Structure du projet
 
 ```
-App_voitures/
-├── streamlit_app.py  # Application Streamlit
-├── data.csv          # Base de données
-├── requirements.txt  # Dépendances
-└── README.md        # Documentation
+gestionnaire-vehicules/
+├── streamlit_app.py      # Point d'entrée de l'application
+├── requirements.txt      # Dépendances du projet
+├── README.md            # Documentation
+├── data/               # Données de référence
+│   ├── marques.csv     # Base de données des marques et modèles
+│   └── equipements.csv # Liste des équipements possibles
+├── utils/              # Utilitaires
+│   ├── data.py        # Gestion des données
+│   ├── scraping.py    # Extraction d'informations
+│   └── scoring.py     # Calcul des scores
+└── components/         # Composants de l'interface
+    ├── cards.py       # Affichage des cartes véhicules
+    ├── forms.py       # Formulaires
+    ├── stats.py       # Statistiques et graphiques
+    └── details.py     # Page de détails
 ```
+
+## 🔧 Configuration
+
+- Les critères de recherche sont personnalisables dans l'interface
+- Les données sont sauvegardées localement dans `data.csv`
+- Les références (marques, modèles, équipements) sont dans le dossier `data/`
+
+## 📊 Données de référence
+
+- `marques.csv` : Base de données des marques et modèles de véhicules
+- `equipements.csv` : Liste des équipements possibles avec descriptions
 
 ## 🤝 Contribution
 
 Les contributions sont les bienvenues ! N'hésitez pas à :
-- Ouvrir une issue pour signaler un bug
-- Proposer une nouvelle fonctionnalité
-- Soumettre une pull request
+1. Fork le projet
+2. Créer une branche pour votre fonctionnalité
+3. Commiter vos changements
+4. Pousser vers la branche
+5. Ouvrir une Pull Request
 
 ## 📝 Licence
 
-Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails. 
+Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
+
+## 🙏 Remerciements
+
+- [Streamlit](https://streamlit.io/) pour le framework
+- [Plotly](https://plotly.com/) pour les graphiques
+- [AutoScout24](https://www.autoscout24.fr/) pour les données d'annonces 

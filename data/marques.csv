@@ -1,19 +1,55 @@
-marque,modele,annee_debut,annee_fin,type,moteur
-BMW,E46 316i,1998,2005,Berline,"1.6 essence, 105ch"
-BMW,E46 318i,1998,2005,Berline,"1.8 essence, 118ch"
-BMW,E46 320i,1998,2005,Berline,"2.0 essence, 150ch"
-BMW,E46 325i,1998,2005,Berline,"2.5 essence, 192ch"
-BMW,E46 330i,1998,2005,Berline,"3.0 essence, 231ch"
-BMW,E46 318d,1998,2005,Berline,"2.0 diesel, 115ch"
-BMW,E46 320d,1998,2005,Berline,"2.0 diesel, 150ch"
-BMW,E46 330d,1998,2005,Berline,"3.0 diesel, 184ch"
-Mercedes,C200 CDI,2000,2007,Berline,"2.2 diesel, 122ch"
-Mercedes,C220 CDI,2000,2007,Berline,"2.2 diesel, 143ch"
-Mercedes,C270 CDI,2000,2007,Berline,"2.7 diesel, 170ch"
-Mercedes,C200 Kompressor,2000,2007,Berline,"2.0 essence, 163ch"
-Mercedes,C230,2000,2007,Berline,"2.3 essence, 192ch"
-Audi,A4 1.8T,2000,2008,Berline,"1.8 essence turbo, 163ch"
-Audi,A4 2.0,2000,2008,Berline,"2.0 essence, 130ch"
-Audi,A4 2.0T,2000,2008,Berline,"2.0 essence turbo, 200ch"
-Audi,A4 1.9 TDI,2000,2008,Berline,"1.9 diesel, 130ch"
-Audi,A4 2.0 TDI,2000,2008,Berline,"2.0 diesel, 140ch" 
+marque,modele,categorie,annee_debut,annee_fin
+Audi,A3,Compacte,1996,2024
+Audi,A4,Berline,1994,2024
+Audi,A5,Coupé,2007,2024
+Audi,A6,Berline,1994,2024
+Audi,Q3,SUV,2011,2024
+Audi,Q5,SUV,2008,2024
+BMW,Série 1,Compacte,2004,2024
+BMW,Série 3,Berline,1975,2024
+BMW,Série 5,Berline,1972,2024
+BMW,X1,SUV,2009,2024
+BMW,X3,SUV,2003,2024
+BMW,X5,SUV,1999,2024
+Citroën,C3,Citadine,2002,2024
+Citroën,C4,Compacte,2004,2024
+Citroën,C5,Berline,2001,2024
+Citroën,C4 Cactus,Crossover,2014,2024
+Mercedes,Classe A,Compacte,1997,2024
+Mercedes,Classe C,Berline,1993,2024
+Mercedes,Classe E,Berline,1993,2024
+Mercedes,GLA,SUV,2013,2024
+Mercedes,GLC,SUV,2015,2024
+Peugeot,208,Citadine,2012,2024
+Peugeot,308,Compacte,2007,2024
+Peugeot,3008,SUV,2009,2024
+Peugeot,5008,SUV,2009,2024
+Renault,Clio,Citadine,1990,2024
+Renault,Mégane,Compacte,1995,2024
+Renault,Captur,Crossover,2013,2024
+Renault,Kadjar,SUV,2015,2024
+Volkswagen,Polo,Citadine,1975,2024
+Volkswagen,Golf,Compacte,1974,2024
+Volkswagen,Passat,Berline,1973,2024
+Volkswagen,Tiguan,SUV,2007,2024
+Volkswagen,T-Roc,Crossover,2017,2024
+Toyota,Yaris,Citadine,1999,2024
+Toyota,Corolla,Compacte,1966,2024
+Toyota,RAV4,SUV,1994,2024
+Toyota,C-HR,Crossover,2016,2024
+Hyundai,i20,Citadine,2008,2024
+Hyundai,i30,Compacte,2007,2024
+Hyundai,Tucson,SUV,2004,2024
+Hyundai,Kona,Crossover,2017,2024
+Kia,Rio,Citadine,2000,2024
+Kia,Ceed,Compacte,2006,2024
+Kia,Sportage,SUV,1993,2024
+Kia,Niro,Crossover,2016,2024
+Seat,Ibiza,Citadine,1984,2024
+Seat,Leon,Compacte,1999,2024
+Seat,Ateca,SUV,2016,2024
+Seat,Arona,Crossover,2017,2024
+Skoda,Fabia,Citadine,1999,2024
+Skoda,Octavia,Compacte,1996,2024
+Skoda,Karoq,SUV,2017,2024
+Skoda,Kodiaq,SUV,2016,2024 

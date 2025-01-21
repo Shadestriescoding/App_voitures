@@ -354,17 +354,28 @@ df_filtered = filtrer_vehicules(df, filtres)
 if st.session_state.page == "galerie":
     st.title("🖼️ Galerie des véhicules")
     
-    # Calcul des scores pour tous les véhicules
-    for idx, vehicule in df_filtered.iterrows():
-        score = calculer_score_vehicule(vehicule, st.session_state.config_criteres)
-        df_filtered.at[idx, 'Score_Match'] = score
+    # Calcul des scores pour tous les véhicules si une recherche est active
+    if st.session_state.recherche_active != "Toutes les annonces" and st.session_state.recherche_active in recherches:
+        criteres = recherches[st.session_state.recherche_active]['criteres']
+        indices_associes = recherches[st.session_state.recherche_active]['vehicules_associes']
+        df_filtered = df.iloc[indices_associes].copy()
+        
+        # Calcul des scores pour les véhicules filtrés
+        for idx in df_filtered.index:
+            score = calculer_score_vehicule(df_filtered.iloc[idx], criteres)
+            df_filtered.at[idx, 'Score_Match'] = score
+    else:
+        df_filtered = df.copy()
+        if not df_filtered.empty:
+            df_filtered['Score_Match'] = 0.0
     
     # Barre de tri et filtres
     col_tri, col_vue = st.columns([2, 1])
     with col_tri:
         tri = st.selectbox(
             "Trier par",
-            ["Score de correspondance ↓", "Date d'ajout ↓", "Prix ↑", "Prix ↓", "Année ↓", "Fiabilité ↓"],
+            ["Date d'ajout ↓", "Prix ↑", "Prix ↓", "Année ↓"] + 
+            (["Score de correspondance ↓"] if st.session_state.recherche_active != "Toutes les annonces" else []),
             help="Choisissez comment trier les véhicules"
         )
     
@@ -377,7 +388,7 @@ if st.session_state.page == "galerie":
         )
     
     # Tri des véhicules
-    if tri == "Score de correspondance ↓":
+    if tri == "Score de correspondance ↓" and 'Score_Match' in df_filtered.columns:
         df_filtered = df_filtered.sort_values('Score_Match', ascending=False)
     elif tri == "Date d'ajout ↓":
         df_filtered = df_filtered.sort_values('Date_Ajout', ascending=False)
@@ -387,18 +398,19 @@ if st.session_state.page == "galerie":
         df_filtered = df_filtered.sort_values('Prix', ascending=False)
     elif tri == "Année ↓":
         df_filtered = df_filtered.sort_values('Annee', ascending=False)
-    elif tri == "Fiabilité ↓":
-        df_filtered = df_filtered.sort_values('Fiabilite', ascending=False)
     
     # Affichage des véhicules
-    if vue == "Grille":
-        cols = st.columns(3)
-        for idx, row in df_filtered.iterrows():
-            with cols[idx % 3]:
-                afficher_carte_vehicule(row, idx, df, sauvegarder_donnees)
+    if not df_filtered.empty:
+        if vue == "Grille":
+            cols = st.columns(3)
+            for idx, row in df_filtered.iterrows():
+                with cols[idx % 3]:
+                    afficher_carte_vehicule(row, idx, df, sauvegarder_donnees)
+        else:
+            for idx, row in df_filtered.iterrows():
+                afficher_liste_vehicule(row, idx, df, sauvegarder_donnees)
     else:
-        for idx, row in df_filtered.iterrows():
-            afficher_liste_vehicule(row, idx, df, sauvegarder_donnees)
+        st.info("Aucun véhicule trouvé")
 
 elif st.session_state.page == "ajouter":
     st.title("📝 Ajouter un véhicule")

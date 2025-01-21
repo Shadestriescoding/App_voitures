@@ -20,8 +20,13 @@ def charger_donnees():
             'Prix', 'Marque', 'Modele', 'Annee', 'Image_URL', 'Motorisation',
             'Puissance', 'Transmission', 'Categorie', 'Type_Vendeur', 'Note_Vendeur',
             'Distance', 'Equipements', 'URL', 'Date_Ajout', 'Status', 'Selection_Franck',
-            'Points_Forts', 'Points_Faibles', 'Red_Flags', 'Tags', 'Notes'
+            'Points_Forts', 'Points_Faibles', 'Red_Flags', 'Tags', 'Notes', 'Score_Match',
+            'Coup_de_Coeur'
         ])
+        
+    # Initialisation de la colonne Score_Match si elle n'existe pas
+    if 'Score_Match' not in df.columns:
+        df['Score_Match'] = 0.0
     
     # Chargement des recherches
     try:

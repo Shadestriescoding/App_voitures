@@ -1,6 +1,7 @@
 import streamlit as st
 from datetime import datetime
 from utils.data import sauvegarder_donnees, charger_references, sauvegarder_recherche
+import pandas as pd
 
 def afficher_formulaire_ajout(df, marques_df, equipements_df, infos_annonce=None):
     """
@@ -11,30 +12,45 @@ def afficher_formulaire_ajout(df, marques_df, equipements_df, infos_annonce=None
         col1, col2 = st.columns(2)
         
         with col1:
+            # Sélection de la marque
+            marque_index = 0
+            if infos_annonce and infos_annonce.get('marque') in marques_df['marque'].unique():
+                marque_index = list(marques_df['marque'].unique()).index(infos_annonce['marque'])
+            
             marque = st.selectbox(
                 "Marque",
                 options=sorted(marques_df['marque'].unique()),
-                index=0 if not infos_annonce else list(marques_df['marque'].unique()).index(infos_annonce['marque'])
+                index=marque_index
             )
             
-            modeles_disponibles = marques_df[marques_df['marque'] == marque]['modele'].unique()
+            # Sélection du modèle
+            modeles_disponibles = sorted(marques_df[marques_df['marque'] == marque]['modele'].unique())
+            modele_index = 0
+            if infos_annonce and infos_annonce.get('modele'):
+                # Recherche du modèle le plus proche dans la liste
+                modele_annonce = infos_annonce['modele'].strip()
+                for i, m in enumerate(modeles_disponibles):
+                    if modele_annonce in m or m in modele_annonce:
+                        modele_index = i
+                        break
+            
             modele = st.selectbox(
                 "Modèle",
                 options=modeles_disponibles,
-                index=0 if not infos_annonce else list(modeles_disponibles).index(infos_annonce['modele'])
+                index=modele_index
             )
             
             annee = st.number_input(
                 "Année",
-                min_value=1998,
+                min_value=1990,
                 max_value=datetime.now().year,
-                value=infos_annonce['annee'] if infos_annonce else 2020
+                value=infos_annonce.get('annee', 2020) if infos_annonce else 2020
             )
             
             prix = st.number_input(
                 "Prix (€)",
                 min_value=0,
-                value=infos_annonce['prix'] if infos_annonce else 10000
+                value=infos_annonce.get('prix', 10000) if infos_annonce else 10000
             )
         
         with col2:
@@ -42,14 +58,14 @@ def afficher_formulaire_ajout(df, marques_df, equipements_df, infos_annonce=None
                 "Consommation (L/100 km)",
                 min_value=0.0,
                 max_value=30.0,
-                value=7.0,
+                value=infos_annonce.get('consommation', 7.0) if infos_annonce else 7.0,
                 step=0.1
             )
             
             cout_assurance = st.number_input(
                 "Coût Assurance (€/an)",
                 min_value=0,
-                value=500
+                value=infos_annonce.get('cout_assurance', 500) if infos_annonce else 500
             )
             
             fiabilite = st.slider(
@@ -97,8 +113,8 @@ def afficher_formulaire_ajout(df, marques_df, equipements_df, infos_annonce=None
                     'Equipements': ", ".join(equipements_selectionnes),
                     'Fiabilite': fiabilite,
                     'Date_Ajout': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    'Lien_Annonce': infos_annonce['url'] if infos_annonce else "",
-                    'Image_URL': infos_annonce['image_url'] if infos_annonce else "",
+                    'Lien_Annonce': infos_annonce.get('url', "") if infos_annonce else "",
+                    'Image_URL': infos_annonce.get('image_url', "") if infos_annonce else "",
                     'Status': "En attente",
                     'Selection_Franck': False,
                     'Notes': notes,

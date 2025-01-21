@@ -163,21 +163,49 @@ def afficher_formulaire_config(recherches):
             
             # Budget avec plage et importance
             st.markdown("##### 💰 Budget")
-            budget_min, budget_max = st.slider(
-                "Plage de budget (€)",
-                min_value=0,
-                max_value=100000,
-                value=(st.session_state.config_criteres.get('budget_min', {'valeur': 5000})['valeur'],
-                       st.session_state.config_criteres.get('budget_max', {'valeur': 20000})['valeur']),
-                step=1000
-            )
-            budget_poids = st.slider(
-                "Importance du budget",
-                min_value=0,
-                max_value=10,
-                value=5,
-                help="0 = ignoré, 10 = très important"
-            )
+            col_budget1, col_budget2 = st.columns(2)
+            with col_budget1:
+                budget_min, budget_max = st.slider(
+                    "Plage de budget (€)",
+                    min_value=0,
+                    max_value=100000,
+                    value=(st.session_state.config_criteres.get('budget_min', {'valeur': 5000})['valeur'],
+                           st.session_state.config_criteres.get('budget_max', {'valeur': 20000})['valeur']),
+                    step=1000
+                )
+            with col_budget2:
+                budget_min = st.number_input(
+                    "Budget minimum (€)",
+                    min_value=0,
+                    max_value=100000,
+                    value=budget_min,
+                    step=1000
+                )
+                budget_max = st.number_input(
+                    "Budget maximum (€)",
+                    min_value=0,
+                    max_value=100000,
+                    value=budget_max,
+                    step=1000
+                )
+            
+            col_budget_imp1, col_budget_imp2 = st.columns(2)
+            with col_budget_imp1:
+                budget_poids = st.slider(
+                    "Importance du budget",
+                    min_value=0,
+                    max_value=10,
+                    value=5,
+                    help="0 = ignoré, 10 = très important"
+                )
+            with col_budget_imp2:
+                budget_poids = st.number_input(
+                    "Importance (0-10)",
+                    min_value=0,
+                    max_value=10,
+                    value=budget_poids
+                )
+            
             budget_obligatoire = st.checkbox("Budget obligatoire", value=True)
             st.session_state.config_criteres['budget_min'] = {
                 'valeur': budget_min,
@@ -192,20 +220,46 @@ def afficher_formulaire_config(recherches):
             
             # Année avec plage et importance
             st.markdown("##### 📅 Année")
-            annee_min, annee_max = st.slider(
-                "Plage d'années",
-                min_value=1990,
-                max_value=datetime.now().year,
-                value=(st.session_state.config_criteres.get('annee_min', {'valeur': 2015})['valeur'],
-                       st.session_state.config_criteres.get('annee_max', {'valeur': datetime.now().year})['valeur'])
-            )
-            annee_poids = st.slider(
-                "Importance de l'année",
-                min_value=0,
-                max_value=10,
-                value=3,
-                help="0 = ignoré, 10 = très important"
-            )
+            col_annee1, col_annee2 = st.columns(2)
+            with col_annee1:
+                annee_min, annee_max = st.slider(
+                    "Plage d'années",
+                    min_value=1990,
+                    max_value=datetime.now().year,
+                    value=(st.session_state.config_criteres.get('annee_min', {'valeur': 2015})['valeur'],
+                           st.session_state.config_criteres.get('annee_max', {'valeur': datetime.now().year})['valeur'])
+                )
+            with col_annee2:
+                annee_min = st.number_input(
+                    "Année minimum",
+                    min_value=1990,
+                    max_value=datetime.now().year,
+                    value=annee_min
+                )
+                annee_max = st.number_input(
+                    "Année maximum",
+                    min_value=1990,
+                    max_value=datetime.now().year,
+                    value=annee_max
+                )
+            
+            col_annee_imp1, col_annee_imp2 = st.columns(2)
+            with col_annee_imp1:
+                annee_poids = st.slider(
+                    "Importance de l'année",
+                    min_value=0,
+                    max_value=10,
+                    value=3,
+                    help="0 = ignoré, 10 = très important"
+                )
+            with col_annee_imp2:
+                annee_poids = st.number_input(
+                    "Importance année (0-10)",
+                    min_value=0,
+                    max_value=10,
+                    value=annee_poids
+                )
+            
             annee_obligatoire = st.checkbox("Année obligatoire")
             st.session_state.config_criteres['annee_min'] = {
                 'valeur': annee_min,
@@ -291,20 +345,46 @@ def afficher_formulaire_config(recherches):
             
             # Puissance avec importance
             st.markdown("##### 💪 Puissance")
-            puissance_min, puissance_max = st.slider(
-                "Plage de puissance (ch)",
-                min_value=70,
-                max_value=500,
-                value=(st.session_state.config_criteres.get('puissance_min', {'valeur': 100})['valeur'],
-                       st.session_state.config_criteres.get('puissance_max', {'valeur': 300})['valeur'])
-            )
-            puissance_poids = st.slider(
-                "Importance de la puissance",
-                min_value=0,
-                max_value=10,
-                value=3,
-                help="0 = ignoré, 10 = très important"
-            )
+            col_puiss1, col_puiss2 = st.columns(2)
+            with col_puiss1:
+                puissance_min, puissance_max = st.slider(
+                    "Plage de puissance (ch)",
+                    min_value=70,
+                    max_value=500,
+                    value=(st.session_state.config_criteres.get('puissance_min', {'valeur': 100})['valeur'],
+                           st.session_state.config_criteres.get('puissance_max', {'valeur': 300})['valeur'])
+                )
+            with col_puiss2:
+                puissance_min = st.number_input(
+                    "Puissance minimum (ch)",
+                    min_value=70,
+                    max_value=500,
+                    value=puissance_min
+                )
+                puissance_max = st.number_input(
+                    "Puissance maximum (ch)",
+                    min_value=70,
+                    max_value=500,
+                    value=puissance_max
+                )
+            
+            col_puiss_imp1, col_puiss_imp2 = st.columns(2)
+            with col_puiss_imp1:
+                puissance_poids = st.slider(
+                    "Importance de la puissance",
+                    min_value=0,
+                    max_value=10,
+                    value=3,
+                    help="0 = ignoré, 10 = très important"
+                )
+            with col_puiss_imp2:
+                puissance_poids = st.number_input(
+                    "Importance puissance (0-10)",
+                    min_value=0,
+                    max_value=10,
+                    value=puissance_poids
+                )
+            
             puissance_obligatoire = st.checkbox("Puissance obligatoire")
             st.session_state.config_criteres['puissance_min'] = {
                 'valeur': puissance_min,
@@ -343,20 +423,41 @@ def afficher_formulaire_config(recherches):
             
             # Consommation avec importance
             st.markdown("##### ⛽ Consommation")
-            conso_max = st.number_input(
-                "Consommation maximum (L/100km)",
-                min_value=0.0,
-                max_value=20.0,
-                value=float(st.session_state.config_criteres['conso_max']['valeur']),
-                step=0.5
-            )
-            conso_poids = st.slider(
-                "Importance de la consommation",
-                min_value=0,
-                max_value=10,
-                value=4,
-                help="0 = ignoré, 10 = très important"
-            )
+            col_conso1, col_conso2 = st.columns(2)
+            with col_conso1:
+                conso_max = st.slider(
+                    "Consommation maximum (L/100km)",
+                    min_value=0.0,
+                    max_value=20.0,
+                    value=float(st.session_state.config_criteres['conso_max']['valeur']),
+                    step=0.5
+                )
+            with col_conso2:
+                conso_max = st.number_input(
+                    "Consommation max (L/100km)",
+                    min_value=0.0,
+                    max_value=20.0,
+                    value=conso_max,
+                    step=0.1
+                )
+            
+            col_conso_imp1, col_conso_imp2 = st.columns(2)
+            with col_conso_imp1:
+                conso_poids = st.slider(
+                    "Importance de la consommation",
+                    min_value=0,
+                    max_value=10,
+                    value=4,
+                    help="0 = ignoré, 10 = très important"
+                )
+            with col_conso_imp2:
+                conso_poids = st.number_input(
+                    "Importance conso (0-10)",
+                    min_value=0,
+                    max_value=10,
+                    value=conso_poids
+                )
+            
             conso_obligatoire = st.checkbox("Consommation obligatoire")
             st.session_state.config_criteres['conso_max'] = {
                 'valeur': conso_max,
@@ -366,19 +467,41 @@ def afficher_formulaire_config(recherches):
             
             # Coût d'assurance avec importance
             st.markdown("##### 🛡️ Assurance")
-            assurance_max = st.number_input(
-                "Coût d'assurance maximum (€/an)",
-                min_value=0,
-                value=st.session_state.config_criteres['assurance_max']['valeur'],
-                step=100
-            )
-            assurance_poids = st.slider(
-                "Importance de l'assurance",
-                min_value=0,
-                max_value=10,
-                value=3,
-                help="0 = ignoré, 10 = très important"
-            )
+            col_assur1, col_assur2 = st.columns(2)
+            with col_assur1:
+                assurance_max = st.slider(
+                    "Coût d'assurance maximum (€/an)",
+                    min_value=0,
+                    max_value=3000,
+                    value=st.session_state.config_criteres['assurance_max']['valeur'],
+                    step=100
+                )
+            with col_assur2:
+                assurance_max = st.number_input(
+                    "Assurance max (€/an)",
+                    min_value=0,
+                    max_value=3000,
+                    value=assurance_max,
+                    step=50
+                )
+            
+            col_assur_imp1, col_assur_imp2 = st.columns(2)
+            with col_assur_imp1:
+                assurance_poids = st.slider(
+                    "Importance de l'assurance",
+                    min_value=0,
+                    max_value=10,
+                    value=3,
+                    help="0 = ignoré, 10 = très important"
+                )
+            with col_assur_imp2:
+                assurance_poids = st.number_input(
+                    "Importance assurance (0-10)",
+                    min_value=0,
+                    max_value=10,
+                    value=assurance_poids
+                )
+            
             assurance_obligatoire = st.checkbox("Assurance obligatoire")
             st.session_state.config_criteres['assurance_max'] = {
                 'valeur': assurance_max,

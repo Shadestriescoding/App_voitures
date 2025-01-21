@@ -23,126 +23,199 @@ st.set_page_config(
 # Styles CSS personnalisés
 st.markdown("""
     <style>
+    /* Styles globaux */
     .main {
         padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
     }
-    .stForm {
-        background-color: #f0f2f6;
-        padding: 2rem;
-        border-radius: 10px;
+    
+    /* Animation d'entrée */
+    @keyframes slideIn {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
     }
-    .car-image {
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease;
-    }
-    .car-image:hover {
-        transform: scale(1.02);
-    }
+    
+    /* Cartes véhicules */
     .car-card {
-        padding: 1.5rem;
-        border-radius: 15px;
-        background: white;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        margin-bottom: 1.5rem;
+        padding: 1.8rem;
+        border-radius: 20px;
+        background: linear-gradient(145deg, #ffffff, #f5f7fa);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
         position: relative;
         overflow: hidden;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: slideIn 0.5s ease-out;
+        border: 1px solid rgba(255, 255, 255, 0.5);
     }
+    
     .car-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
     }
-    .status-validated {
-        background: linear-gradient(135deg, #4CAF50, #45a049);
-        color: white;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.9em;
-        font-weight: 500;
+    
+    .premium-card {
+        background: linear-gradient(145deg, #fff9e6, #fff2cc);
+        border: 2px solid #ffd700;
+        position: relative;
+        overflow: hidden;
     }
-    .status-rejected {
-        background: linear-gradient(135deg, #f44336, #e53935);
-        color: white;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.9em;
-        font-weight: 500;
+    
+    .premium-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #ffd700, #ffa500);
     }
-    .status-pending {
-        background: linear-gradient(135deg, #ff9800, #fb8c00);
-        color: white;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.9em;
-        font-weight: 500;
-    }
+    
+    /* Badges et statuts */
     .badge-container {
         position: absolute;
-        top: 15px;
-        right: 15px;
+        top: 20px;
+        right: 20px;
         display: flex;
         flex-direction: column;
-        gap: 8px;
-        z-index: 1;
+        gap: 10px;
+        z-index: 2;
     }
+    
     .match-badge {
         background: linear-gradient(135deg, #4CAF50, #45a049);
         color: white;
-        padding: 6px 12px;
-        border-radius: 25px;
-        font-size: 0.9em;
+        padding: 8px 16px;
+        border-radius: 30px;
+        font-size: 0.95em;
         font-weight: 600;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
         animation: pulse 2s infinite;
+        backdrop-filter: blur(4px);
     }
+    
     .favorite-badge {
         background: linear-gradient(135deg, #FF4B82, #FF6B6B);
         color: white;
-        padding: 6px 12px;
-        border-radius: 25px;
-        font-size: 0.9em;
+        padding: 8px 16px;
+        border-radius: 30px;
+        font-size: 0.95em;
         font-weight: 600;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 8px rgba(255, 75, 130, 0.3);
+        backdrop-filter: blur(4px);
     }
-    .premium-card {
-        border: 2px solid gold;
-        background: linear-gradient(to bottom right, rgba(255,215,0,0.1), transparent);
-    }
+    
+    /* Informations véhicule */
     .car-info {
-        margin-top: 1.2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.5rem;
-        background: rgba(0,0,0,0.02);
-        border-radius: 10px;
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 15px;
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(0, 0, 0, 0.05);
     }
+    
     .car-price {
-        font-size: 1.3em;
-        font-weight: bold;
+        font-size: 1.5em;
+        font-weight: 700;
         color: #2196F3;
-        text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+        text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+        letter-spacing: -0.5px;
     }
+    
     .car-stats {
         display: flex;
-        gap: 1.2rem;
-        margin-top: 0.8rem;
-        color: #666;
-        font-size: 0.95em;
+        gap: 1.5rem;
+        margin-top: 1rem;
+        color: #555;
+        font-size: 1em;
+        padding: 0.8rem;
+        background: rgba(0, 0, 0, 0.02);
+        border-radius: 12px;
     }
+    
+    .car-stats span {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    /* Points forts/faibles */
+    .points-container {
+        margin-top: 1.2rem;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .points-forts, .points-faibles {
+        padding: 1rem;
+        border-radius: 12px;
+        font-size: 0.95em;
+        line-height: 1.5;
+        backdrop-filter: blur(4px);
+    }
+    
+    .points-forts {
+        background: rgba(76, 175, 80, 0.1);
+        border-left: 4px solid #4CAF50;
+        color: #2e7d32;
+    }
+    
+    .points-faibles {
+        background: rgba(244, 67, 54, 0.1);
+        border-left: 4px solid #f44336;
+        color: #d32f2f;
+    }
+    
+    /* Boutons et actions */
     .action-buttons {
         display: flex;
-        gap: 0.8rem;
-        margin-top: 1.2rem;
+        gap: 1rem;
+        margin-top: 1.5rem;
     }
-    .search-active {
-        background: #e3f2fd;
-        padding: 1rem;
-        border-radius: 10px;
-        margin-bottom: 1rem;
-        border-left: 4px solid #2196F3;
+    
+    .action-button {
+        padding: 0.8rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-align: center;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        cursor: pointer;
     }
+    
+    .action-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Formulaires et entrées */
+    .stTextInput, .stNumberInput, .stSelectbox {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 0.8rem;
+        transition: all 0.3s ease;
+    }
+    
+    .stTextInput:focus, .stNumberInput:focus, .stSelectbox:focus {
+        border-color: #2196F3;
+        box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+    }
+    
+    /* Animations */
     @keyframes pulse {
         0% {
             transform: scale(1);
@@ -152,6 +225,32 @@ st.markdown("""
         }
         100% {
             transform: scale(1);
+        }
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .car-card {
+            padding: 1.2rem;
+        }
+        
+        .car-stats {
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        
+        .badge-container {
+            position: static;
+            margin-bottom: 1rem;
         }
     }
     </style>
@@ -189,6 +288,25 @@ def generer_pdf_vehicule(vehicule):
     pdf.cell(0, 10, f"Consommation: {vehicule['Consommation']} L/100km", 0, 1)
     pdf.cell(0, 10, f"Fiabilité: {vehicule['Fiabilite']}/10", 0, 1)
     pdf.cell(0, 10, f"Coût assurance: {vehicule['Cout_Assurance']} €/an", 0, 1)
+    
+    # Points forts et points faibles
+    if 'Points_Forts' in vehicule and vehicule['Points_Forts']:
+        pdf.ln(5)
+        pdf.set_font('Arial', 'B', 14)
+        pdf.cell(0, 10, "Points forts", 0, 1)
+        pdf.set_font('Arial', '', 12)
+        for point in vehicule['Points_Forts'].split('\n'):
+            if point.strip():
+                pdf.cell(0, 10, f"✓ {point.strip()}", 0, 1)
+    
+    if 'Points_Faibles' in vehicule and vehicule['Points_Faibles']:
+        pdf.ln(5)
+        pdf.set_font('Arial', 'B', 14)
+        pdf.cell(0, 10, "Points faibles", 0, 1)
+        pdf.set_font('Arial', '', 12)
+        for point in vehicule['Points_Faibles'].split('\n'):
+            if point.strip():
+                pdf.cell(0, 10, f"✗ {point.strip()}", 0, 1)
     
     # Notes détaillées
     if 'Notes_Detaillees' in vehicule:
@@ -280,7 +398,8 @@ def charger_donnees():
         'Cout_Assurance', 'Equipements', 'Fiabilite',
         'Date_Ajout', 'Lien_Annonce', 'Image_URL',
         'Status', 'Selection_Franck', 'Notes',
-        'Notes_Detaillees', 'Red_Flags', 'Tags'
+        'Notes_Detaillees', 'Red_Flags', 'Tags',
+        'Points_Forts', 'Points_Faibles'
     ])
 
 # Fonction pour sauvegarder les données
@@ -340,8 +459,6 @@ def calculer_score_vehicule(vehicule, criteres):
             else:
                 # Score partiel si proche du budget
                 depassement = (vehicule['Prix'] - critere['valeur']) / critere['valeur']
-                if depassement <= 0.1:  # 10% de dépassement max
-                    score += critere['poids'] * (1 - depassement)
         elif nom == 'annee_min':
             if vehicule['Annee'] >= critere['valeur']:
                 score += critere['poids']
@@ -453,9 +570,8 @@ with st.sidebar:
         "Prix (€)",
         min_value=int(df['Prix'].min()) if not df.empty else 0,
         max_value=int(df['Prix'].max()) if not df.empty else 100000,
-        value=(int(df['Prix'].min()) if not df.empty else 0, 
+        value=(int(df['Prix'].min()) if not df.empty else 0,
                int(df['Prix'].max()) if not df.empty else 100000)
-    )
     
     # Navigation
     st.markdown("---")
@@ -501,12 +617,24 @@ if st.session_state.page == "galerie":
         score = calculer_score_vehicule(vehicule, st.session_state.config_criteres)
         df_filtered.at[idx, 'Score_Match'] = score
     
-    # Tri des véhicules
-    tri = st.selectbox(
-        "Trier par",
-        ["Score de correspondance ↓", "Date d'ajout ↓", "Prix ↑", "Prix ↓", "Année ↓", "Fiabilité ↓"]
-    )
+    # Barre de tri et filtres
+    col_tri, col_vue = st.columns([2, 1])
+    with col_tri:
+        tri = st.selectbox(
+            "Trier par",
+            ["Score de correspondance ↓", "Date d'ajout ↓", "Prix ↑", "Prix ↓", "Année ↓", "Fiabilité ↓"],
+            help="Choisissez comment trier les véhicules"
+        )
     
+    with col_vue:
+        vue = st.radio(
+            "Vue",
+            ["Grille", "Liste"],
+            horizontal=True,
+            help="Choisissez le mode d'affichage"
+        )
+    
+    # Tri des véhicules
     if tri == "Score de correspondance ↓":
         df_filtered = df_filtered.sort_values('Score_Match', ascending=False)
     elif tri == "Date d'ajout ↓":
@@ -520,62 +648,108 @@ if st.session_state.page == "galerie":
     elif tri == "Fiabilité ↓":
         df_filtered = df_filtered.sort_values('Fiabilite', ascending=False)
     
-    # Affichage en grille
-    cols = st.columns(3)
-    for idx, row in df_filtered.iterrows():
-        with cols[idx % 3]:
-            with st.container():
-                card_class = "car-card premium-card" if row['Score_Match'] >= 80 else "car-card"
-                
-                st.markdown(f"""
-                <div class="{card_class}">
-                    <div class="badge-container">
-                        <div class="match-badge">Match {row['Score_Match']:.0f}%</div>
-                        {"<div class='favorite-badge'>❤️ Coup de cœur</div>" if row['Coup_de_Coeur'] else ""}
-                    </div>
-                    <div class="{status_class}">{row['Status']}</div>
-                    <h3>{row['Marque']} {row['Modele']}</h3>
-                    <div class="car-info">
-                        <span>Année: {row['Annee']}</span>
-                        <span class="car-price">{row['Prix']:,.0f} €</span>
-                    </div>
-                    <div class="car-stats">
-                        <span>🔋 {row['Fiabilite']}/10</span>
-                        <span>⛽ {row['Consommation']}L/100km</span>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                if row['Image_URL']:
-                    st.image(row['Image_URL'], 
-                            use_column_width=True,
-                            caption=None)
-                
-                col1, col2, col3 = st.columns(3)
-                with col1:
-                    if row['Lien_Annonce']:
-                        st.markdown(f"[🔗 Annonce]({row['Lien_Annonce']})")
-                with col2:
-                    if st.button("📊 Détails", key=f"details_{idx}"):
-                        st.session_state.page = "details"
-                        st.session_state.selected_car = idx
-                with col3:
-                    if st.button("❤️", key=f"favorite_{idx}"):
-                        df.at[idx, 'Coup_de_Coeur'] = not df.at[idx, 'Coup_de_Coeur']
-                        sauvegarder_donnees(df)
-                        st.rerun()
-                
-                if row['Notes']:
-                    st.info(f"📝 {row['Notes']}")
-                
-                st.markdown("---")
+    # Affichage des véhicules
+    if vue == "Grille":
+        cols = st.columns(3)
+        for idx, row in df_filtered.iterrows():
+            with cols[idx % 3]:
+                afficher_carte_vehicule(row, idx)
+    else:
+        for idx, row in df_filtered.iterrows():
+            afficher_liste_vehicule(row, idx)
+
+def afficher_carte_vehicule(row, idx):
+    card_class = "car-card premium-card" if row['Score_Match'] >= 80 else "car-card"
+    
+    # HTML pour la carte
+    html = f"""
+    <div class="{card_class}">
+        <div class="badge-container">
+            <div class="match-badge">Match {row['Score_Match']:.0f}%</div>
+            {"<div class='favorite-badge'>❤️ Coup de cœur</div>" if row.get('Coup_de_Coeur', False) else ""}
+        </div>
+        
+        <h3 style="font-size: 1.4em; margin-bottom: 1rem;">{row['Marque']} {row['Modele']}</h3>
+        
+        <div class="car-info">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 1.1em;">Année {row['Annee']}</span>
+                <span class="car-price">{row['Prix']:,.0f} €</span>
+            </div>
+            
+            <div class="car-stats">
+                <span title="Fiabilité">🔋 {row['Fiabilite']}/10</span>
+                <span title="Consommation">⛽ {row['Consommation']}L/100km</span>
+                <span title="Assurance">🛡️ {row['Cout_Assurance']}€/an</span>
+            </div>
+        </div>
+    """
+    
+    # Ajout des points forts/faibles s'ils existent
+    if row.get('Points_Forts') or row.get('Points_Faibles'):
+        html += '<div class="points-container">'
+        if row.get('Points_Forts'):
+            points = [p.strip() for p in row['Points_Forts'].split('\n') if p.strip()][:2]
+            if points:
+                html += '<div class="points-forts">'
+                for point in points:
+                    html += f'<div>✓ {point}</div>'
+                html += '</div>'
+        
+        if row.get('Points_Faibles'):
+            points = [p.strip() for p in row['Points_Faibles'].split('\n') if p.strip()][:2]
+            if points:
+                html += '<div class="points-faibles">'
+                for point in points:
+                    html += f'<div>✗ {point}</div>'
+                html += '</div>'
+        html += '</div>'
+    
+    html += "</div>"
+    st.markdown(html, unsafe_allow_html=True)
+    
+    # Boutons d'action
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        if row['Lien_Annonce']:
+            st.markdown(f"<a href='{row['Lien_Annonce']}' target='_blank' class='action-button'>🔗 Annonce</a>", unsafe_allow_html=True)
+    with col2:
+        if st.button("📊 Détails", key=f"details_{idx}"):
+            st.session_state.page = "details"
+            st.session_state.selected_car = idx
+    with col3:
+        if st.button("❤️", key=f"favorite_{idx}"):
+            df.at[idx, 'Coup_de_Coeur'] = not df.at[idx, 'Coup_de_Coeur']
+            sauvegarder_donnees(df)
+            st.rerun()
+
+def afficher_liste_vehicule(row, idx):
+    st.markdown(f"""
+    <div class="car-card" style="display: flex; gap: 2rem; align-items: center;">
+        <div style="flex: 1;">
+            <h3>{row['Marque']} {row['Modele']} ({row['Annee']})</h3>
+            <div class="car-stats">
+                <span>🔋 {row['Fiabilite']}/10</span>
+                <span>⛽ {row['Consommation']}L/100km</span>
+                <span>💰 {row['Prix']:,.0f} €</span>
+            </div>
+        </div>
+        <div class="action-buttons" style="flex: 0 0 auto;">
+            <a href="{row['Lien_Annonce']}" target="_blank" class="action-button">🔗</a>
+            <button onclick="details_{idx}()" class="action-button">📊</button>
+            <button onclick="favorite_{idx}()" class="action-button">❤️</button>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 elif st.session_state.page == "ajouter":
     st.title("📝 Ajouter un véhicule")
     
     # Option pour ajouter via URL
-    url_annonce = st.text_input("URL de l'annonce (AutoScout24, LeBonCoin)", 
-                               help="Collez l'URL de l'annonce pour remplir automatiquement les informations")
+    url_annonce = st.text_input(
+        "URL de l'annonce (AutoScout24, LeBonCoin)", 
+        help="Collez l'URL de l'annonce pour remplir automatiquement les informations"
+    )
     
     infos_annonce = None
     if url_annonce:
@@ -587,7 +761,6 @@ elif st.session_state.page == "ajouter":
         col1, col2 = st.columns(2)
         
         with col1:
-            # Utilisation des données de référence pour les marques et modèles
             marque = st.selectbox(
                 "Marque",
                 options=sorted(marques_df['marque'].unique()),
@@ -613,7 +786,7 @@ elif st.session_state.page == "ajouter":
                 min_value=0,
                 value=infos_annonce['prix'] if infos_annonce else 10000
             )
-            
+        
         with col2:
             consommation = st.number_input(
                 "Consommation (L/100 km)",
@@ -634,7 +807,7 @@ elif st.session_state.page == "ajouter":
                 1, 10, 5
             )
         
-        # Sélection des équipements par catégorie
+        # Sélection des équipements
         st.subheader("Équipements")
         equipements_selectionnes = []
         
@@ -725,6 +898,36 @@ elif st.session_state.page == "details" and st.session_state.selected_car is not
     with col1:
         if voiture['Image_URL']:
             st.image(voiture['Image_URL'], use_column_width=True)
+        
+        # Points forts et points faibles
+        st.subheader("💪 Points forts et points faibles")
+        col_plus, col_moins = st.columns(2)
+        
+        with col_plus:
+            st.markdown("#### ✅ Points forts")
+            points_forts = st.text_area(
+                "Listez les points forts (un par ligne)",
+                value=voiture['Points_Forts'] if 'Points_Forts' in voiture else "",
+                help="Ex: Faible kilométrage, Carnet d'entretien complet...",
+                height=150
+            )
+            if points_forts != voiture.get('Points_Forts', ""):
+                df.at[st.session_state.selected_car, 'Points_Forts'] = points_forts
+                sauvegarder_donnees(df)
+        
+        with col_moins:
+            st.markdown("#### ❌ Points faibles")
+            points_faibles = st.text_area(
+                "Listez les points faibles (un par ligne)",
+                value=voiture['Points_Faibles'] if 'Points_Faibles' in voiture else "",
+                help="Ex: Consommation élevée, Entretien coûteux...",
+                height=150
+            )
+            if points_faibles != voiture.get('Points_Faibles', ""):
+                df.at[st.session_state.selected_car, 'Points_Faibles'] = points_faibles
+                sauvegarder_donnees(df)
+        
+        st.markdown("---")
         
         # Système de notation avancé
         st.subheader("📊 Évaluation détaillée")

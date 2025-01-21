@@ -2,4 +2,6 @@ streamlit==1.32.0
 pandas==2.2.0
 plotly==5.18.0
 numpy==1.26.4
-openpyxl==3.1.2  # Pour l'export Excel si nécessaire 
+openpyxl==3.1.2  # Pour l'export Excel si nécessaire
+requests==2.31.0  # Pour les requêtes HTTP
+beautifulsoup4==4.12.3  # Pour le parsing HTML 

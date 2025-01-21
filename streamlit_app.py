@@ -7,6 +7,10 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 import re
+import fpdf
+from fpdf import FPDF
+import json
+import base64
 
 # Configuration de la page
 st.set_page_config(
@@ -36,51 +40,69 @@ st.markdown("""
         transform: scale(1.02);
     }
     .car-card {
-        padding: 1rem;
-        border-radius: 10px;
+        padding: 1.5rem;
+        border-radius: 15px;
         background: white;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        margin-bottom: 1rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
         position: relative;
         overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    .car-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
     }
     .status-validated {
-        color: green;
-        font-weight: bold;
+        background: linear-gradient(135deg, #4CAF50, #45a049);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        font-weight: 500;
     }
     .status-rejected {
-        color: red;
-        font-weight: bold;
+        background: linear-gradient(135deg, #f44336, #e53935);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        font-weight: 500;
     }
     .status-pending {
-        color: orange;
-        font-weight: bold;
+        background: linear-gradient(135deg, #ff9800, #fb8c00);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        font-weight: 500;
     }
     .badge-container {
         position: absolute;
-        top: 10px;
-        right: 10px;
+        top: 15px;
+        right: 15px;
         display: flex;
         flex-direction: column;
-        gap: 5px;
+        gap: 8px;
         z-index: 1;
     }
     .match-badge {
         background: linear-gradient(135deg, #4CAF50, #45a049);
         color: white;
-        padding: 4px 8px;
-        border-radius: 20px;
-        font-size: 0.8em;
-        font-weight: bold;
+        padding: 6px 12px;
+        border-radius: 25px;
+        font-size: 0.9em;
+        font-weight: 600;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        animation: pulse 2s infinite;
     }
     .favorite-badge {
         background: linear-gradient(135deg, #FF4B82, #FF6B6B);
         color: white;
-        padding: 4px 8px;
-        border-radius: 20px;
-        font-size: 0.8em;
-        font-weight: bold;
+        padding: 6px 12px;
+        border-radius: 25px;
+        font-size: 0.9em;
+        font-weight: 600;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     .premium-card {
@@ -88,29 +110,119 @@ st.markdown("""
         background: linear-gradient(to bottom right, rgba(255,215,0,0.1), transparent);
     }
     .car-info {
-        margin-top: 1rem;
+        margin-top: 1.2rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        padding: 0.5rem;
+        background: rgba(0,0,0,0.02);
+        border-radius: 10px;
     }
     .car-price {
-        font-size: 1.2em;
+        font-size: 1.3em;
         font-weight: bold;
         color: #2196F3;
+        text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
     }
     .car-stats {
         display: flex;
-        gap: 1rem;
-        margin-top: 0.5rem;
+        gap: 1.2rem;
+        margin-top: 0.8rem;
         color: #666;
+        font-size: 0.95em;
     }
     .action-buttons {
         display: flex;
-        gap: 0.5rem;
-        margin-top: 1rem;
+        gap: 0.8rem;
+        margin-top: 1.2rem;
+    }
+    .search-active {
+        background: #e3f2fd;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        border-left: 4px solid #2196F3;
+    }
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+        100% {
+            transform: scale(1);
+        }
     }
     </style>
     """, unsafe_allow_html=True)
+
+# Nouvelle classe pour le PDF personnalisé
+class VehiculePDF(FPDF):
+    def header(self):
+        self.set_font('Arial', 'B', 15)
+        self.cell(0, 10, 'Fiche Véhicule', 0, 1, 'C')
+        self.ln(10)
+    
+    def footer(self):
+        self.set_y(-15)
+        self.set_font('Arial', 'I', 8)
+        self.cell(0, 10, f'Page {self.page_no()}', 0, 0, 'C')
+
+# Fonction pour créer un PDF
+def generer_pdf_vehicule(vehicule):
+    pdf = VehiculePDF()
+    pdf.add_page()
+    
+    # En-tête avec les informations principales
+    pdf.set_font('Arial', 'B', 16)
+    pdf.cell(0, 10, f"{vehicule['Marque']} {vehicule['Modele']} ({vehicule['Annee']})", 0, 1)
+    
+    pdf.set_font('Arial', '', 12)
+    pdf.cell(0, 10, f"Prix: {vehicule['Prix']:,.0f} €", 0, 1)
+    
+    # Caractéristiques techniques
+    pdf.ln(5)
+    pdf.set_font('Arial', 'B', 14)
+    pdf.cell(0, 10, "Caractéristiques", 0, 1)
+    pdf.set_font('Arial', '', 12)
+    pdf.cell(0, 10, f"Consommation: {vehicule['Consommation']} L/100km", 0, 1)
+    pdf.cell(0, 10, f"Fiabilité: {vehicule['Fiabilite']}/10", 0, 1)
+    pdf.cell(0, 10, f"Coût assurance: {vehicule['Cout_Assurance']} €/an", 0, 1)
+    
+    # Notes détaillées
+    if 'Notes_Detaillees' in vehicule:
+        pdf.ln(5)
+        pdf.set_font('Arial', 'B', 14)
+        pdf.cell(0, 10, "Évaluation détaillée", 0, 1)
+        pdf.set_font('Arial', '', 12)
+        notes = json.loads(vehicule['Notes_Detaillees'])
+        for critere, note in notes.items():
+            pdf.cell(0, 10, f"{critere}: {note}/5", 0, 1)
+    
+    # Red flags
+    if 'Red_Flags' in vehicule and vehicule['Red_Flags']:
+        pdf.ln(5)
+        pdf.set_font('Arial', 'B', 14)
+        pdf.cell(0, 10, "Points d'attention", 0, 1)
+        pdf.set_font('Arial', '', 12)
+        for flag in vehicule['Red_Flags'].split(','):
+            pdf.cell(0, 10, f"• {flag.strip()}", 0, 1)
+    
+    # Tags
+    if 'Tags' in vehicule and vehicule['Tags']:
+        pdf.ln(5)
+        pdf.set_font('Arial', 'B', 14)
+        pdf.cell(0, 10, "Tags", 0, 1)
+        pdf.set_font('Arial', '', 12)
+        pdf.cell(0, 10, vehicule['Tags'], 0, 1)
+    
+    return pdf.output(dest='S').encode('latin1')
+
+# Fonction pour créer un lien de téléchargement
+def get_download_link(pdf_bytes, filename):
+    b64 = base64.b64encode(pdf_bytes).decode()
+    return f'<a href="data:application/pdf;base64,{b64}" download="{filename}">Télécharger le PDF</a>'
 
 # Chargement des données de référence
 @st.cache_data
@@ -167,7 +279,8 @@ def charger_donnees():
         'Marque', 'Modele', 'Annee', 'Prix', 'Consommation',
         'Cout_Assurance', 'Equipements', 'Fiabilite',
         'Date_Ajout', 'Lien_Annonce', 'Image_URL',
-        'Status', 'Selection_Franck', 'Notes'
+        'Status', 'Selection_Franck', 'Notes',
+        'Notes_Detaillees', 'Red_Flags', 'Tags'
     ])
 
 # Fonction pour sauvegarder les données
@@ -283,6 +396,8 @@ if 'selected_car' not in st.session_state:
     st.session_state.selected_car = None
 if 'recherche_active' not in st.session_state:
     st.session_state.recherche_active = None
+if 'recherches_validees' not in st.session_state:
+    st.session_state.recherches_validees = {}
 
 # Ajout des variables de session pour la configuration
 if 'config_criteres' not in st.session_state:
@@ -298,6 +413,16 @@ if 'config_criteres' not in st.session_state:
 # Barre latérale pour la navigation et les filtres
 with st.sidebar:
     st.title("🚗 Navigation")
+    
+    # Affichage des recherches validées
+    if st.session_state.recherches_validees:
+        st.subheader("📌 Recherches validées")
+        for nom_recherche, config in st.session_state.recherches_validees.items():
+            if st.button(f"🎯 {nom_recherche}", key=f"recherche_{nom_recherche}"):
+                st.session_state.config_criteres = config
+                st.success(f"Configuration '{nom_recherche}' chargée!")
+                st.rerun()
+        st.markdown("---")
     
     # Sélection de la recherche active
     recherches = ["Toutes"] + (df['Notes'].unique().tolist() if not df.empty else [])
@@ -600,6 +725,64 @@ elif st.session_state.page == "details" and st.session_state.selected_car is not
     with col1:
         if voiture['Image_URL']:
             st.image(voiture['Image_URL'], use_column_width=True)
+        
+        # Système de notation avancé
+        st.subheader("📊 Évaluation détaillée")
+        criteres = {
+            "État général": "État extérieur et intérieur du véhicule",
+            "Prix": "Rapport qualité/prix",
+            "Négociation": "Marge de négociation possible",
+            "Documentation": "Disponibilité et qualité des documents",
+            "Entretien": "Historique et suivi d'entretien"
+        }
+        
+        notes = {}
+        if 'Notes_Detaillees' in voiture and voiture['Notes_Detaillees']:
+            notes = json.loads(voiture['Notes_Detaillees'])
+        
+        notes_modifiees = False
+        for critere, description in criteres.items():
+            col1, col2 = st.columns([3, 1])
+            with col1:
+                st.write(f"**{critere}**")
+                st.caption(description)
+            with col2:
+                note = st.select_slider(
+                    f"Note {critere}",
+                    options=[1, 2, 3, 4, 5],
+                    value=notes.get(critere, 3),
+                    key=f"note_{critere}",
+                    label_visibility="collapsed"
+                )
+                if critere not in notes or notes[critere] != note:
+                    notes[critere] = note
+                    notes_modifiees = True
+        
+        if notes_modifiees:
+            df.at[st.session_state.selected_car, 'Notes_Detaillees'] = json.dumps(notes)
+            sauvegarder_donnees(df)
+        
+        # Red flags
+        st.subheader("⚠️ Points d'attention")
+        red_flags = st.text_area(
+            "Listez les points d'attention (un par ligne)",
+            value=voiture['Red_Flags'] if 'Red_Flags' in voiture else "",
+            help="Ex: Kilométrage suspect, Traces de rouille..."
+        )
+        if red_flags != voiture.get('Red_Flags', ""):
+            df.at[st.session_state.selected_car, 'Red_Flags'] = red_flags
+            sauvegarder_donnees(df)
+        
+        # Tags personnalisés
+        st.subheader("🏷️ Tags")
+        tags = st.text_input(
+            "Ajoutez des tags (séparés par des virgules)",
+            value=voiture['Tags'] if 'Tags' in voiture else "",
+            help="Ex: première main, faible kilométrage, sport..."
+        )
+        if tags != voiture.get('Tags', ""):
+            df.at[st.session_state.selected_car, 'Tags'] = tags
+            sauvegarder_donnees(df)
     
     with col2:
         st.markdown(f"""
@@ -616,6 +799,29 @@ elif st.session_state.page == "details" and st.session_state.selected_car is not
         ### Liens
         [Voir l'annonce]({voiture['Lien_Annonce']})
         """)
+        
+        # Export PDF
+        st.markdown("### 📄 Export")
+        if st.button("Générer la fiche PDF"):
+            pdf_bytes = generer_pdf_vehicule(voiture)
+            st.markdown(
+                get_download_link(pdf_bytes, f"fiche_{voiture['Marque']}_{voiture['Modele']}.pdf"),
+                unsafe_allow_html=True
+            )
+        
+        # Partage de configuration
+        if st.button("📤 Partager cette configuration"):
+            config_share = {
+                'marque': voiture['Marque'],
+                'modele': voiture['Modele'],
+                'annee': voiture['Annee'],
+                'prix': voiture['Prix'],
+                'equipements': voiture['Equipements'].split(','),
+                'notes': json.loads(voiture['Notes_Detaillees']) if 'Notes_Detaillees' in voiture else {},
+                'tags': voiture['Tags'].split(',') if 'Tags' in voiture else []
+            }
+            st.code(json.dumps(config_share, indent=2, ensure_ascii=False))
+            st.info("Copiez ce code pour partager la configuration")
     
     if st.button("← Retour à la galerie"):
         st.session_state.page = "galerie"
@@ -623,6 +829,10 @@ elif st.session_state.page == "details" and st.session_state.selected_car is not
 
 elif st.session_state.page == "config":
     st.title("⚙️ Configuration de la recherche")
+    
+    # Nom de la recherche
+    nom_recherche = st.text_input("📝 Nom de la recherche", 
+                                 help="Donnez un nom à cette configuration pour la sauvegarder")
     
     st.markdown("""
     Définissez vos critères de recherche et leur importance relative pour trouver le véhicule idéal.
@@ -693,11 +903,26 @@ elif st.session_state.page == "config":
             1, 10, st.session_state.config_criteres['assurance_max']['poids']
         )
         
-        st.session_state.config_criteres['equipements']['valeur'] = st.text_area(
-            "Équipements souhaités (séparés par des virgules)",
-            value=st.session_state.config_criteres['equipements']['valeur'],
-            help="Ex: climatisation, gps, cuir, régulateur"
+        # Sélection des équipements avec autocomplétion
+        equipements_disponibles = equipements_df['equipement'].tolist()
+        equipements_selectionnes = st.multiselect(
+            "Équipements souhaités",
+            options=equipements_disponibles,
+            default=[],
+            help="Sélectionnez les équipements souhaités dans la liste"
         )
+        
+        equipements_supplementaires = st.text_input(
+            "Équipements supplémentaires",
+            help="Ajoutez d'autres équipements non listés (séparés par des virgules)"
+        )
+        
+        # Combinaison des équipements sélectionnés et supplémentaires
+        tous_equipements = equipements_selectionnes.copy()
+        if equipements_supplementaires:
+            tous_equipements.extend([e.strip() for e in equipements_supplementaires.split(',')])
+        
+        st.session_state.config_criteres['equipements']['valeur'] = ", ".join(tous_equipements)
         st.session_state.config_criteres['equipements']['poids'] = st.slider(
             "Importance des équipements",
             1, 10, st.session_state.config_criteres['equipements']['poids']
@@ -705,42 +930,62 @@ elif st.session_state.page == "config":
     
     st.markdown("---")
     
-    if st.button("🔍 Rechercher les véhicules correspondants", use_container_width=True):
-        # Calcul des scores pour chaque véhicule
-        scores = []
-        for idx, vehicule in df.iterrows():
-            score = calculer_score_vehicule(vehicule, st.session_state.config_criteres)
-            scores.append({
-                'vehicule': vehicule,
-                'score': score
-            })
-        
-        # Tri par score décroissant
-        scores.sort(key=lambda x: x['score'], reverse=True)
-        
-        # Affichage des résultats
-        st.subheader("🏆 Véhicules recommandés")
-        
-        for i, item in enumerate(scores[:5]):  # Top 5 des véhicules
-            vehicule = item['vehicule']
-            score = item['score']
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("💾 Sauvegarder cette configuration", use_container_width=True):
+            if nom_recherche:
+                st.session_state.recherches_validees[nom_recherche] = st.session_state.config_criteres.copy()
+                st.success(f"✅ Configuration '{nom_recherche}' sauvegardée!")
+                st.balloons()
+            else:
+                st.error("❌ Veuillez donner un nom à cette configuration")
+    
+    with col2:
+        if st.button("🔍 Rechercher les véhicules correspondants", use_container_width=True):
+            # Calcul des scores pour chaque véhicule
+            scores = []
+            for idx, vehicule in df.iterrows():
+                score = calculer_score_vehicule(vehicule, st.session_state.config_criteres)
+                scores.append({
+                    'vehicule': vehicule,
+                    'score': score
+                })
             
-            with st.container():
-                col1, col2 = st.columns([1, 2])
+            # Tri par score décroissant
+            scores.sort(key=lambda x: x['score'], reverse=True)
+            
+            # Affichage des résultats
+            st.subheader("🏆 Véhicules recommandés")
+            
+            for i, item in enumerate(scores[:5]):  # Top 5 des véhicules
+                vehicule = item['vehicule']
+                score = item['score']
                 
-                with col1:
-                    if vehicule['Image_URL']:
-                        st.image(vehicule['Image_URL'], use_column_width=True)
-                
-                with col2:
-                    st.markdown(f"""
-                    ### {vehicule['Marque']} {vehicule['Modele']} ({vehicule['Annee']})
-                    - **Score de correspondance** : {score:.1f}%
-                    - **Prix** : {vehicule['Prix']:,.0f} €
-                    - **Fiabilité** : {vehicule['Fiabilite']}/10
-                    - **Consommation** : {vehicule['Consommation']} L/100km
-                    - **Assurance** : {vehicule['Cout_Assurance']} €/an
+                with st.container():
+                    col1, col2 = st.columns([1, 2])
                     
-                    [Voir l'annonce]({vehicule['Lien_Annonce']}) | [Voir les détails](.)
-                    """)
-                st.markdown("---") 
+                    with col1:
+                        if vehicule['Image_URL']:
+                            st.image(vehicule['Image_URL'], use_column_width=True)
+                    
+                    with col2:
+                        st.markdown(f"""
+                        ### {vehicule['Marque']} {vehicule['Modele']} ({vehicule['Annee']})
+                        - **Score de correspondance** : {score:.1f}%
+                        - **Prix** : {vehicule['Prix']:,.0f} €
+                        - **Fiabilité** : {vehicule['Fiabilite']}/10
+                        - **Consommation** : {vehicule['Consommation']} L/100km
+                        - **Assurance** : {vehicule['Cout_Assurance']} €/an
+                        
+                        [Voir l'annonce]({vehicule['Lien_Annonce']}) | [Voir les détails](.)
+                        """)
+                    st.markdown("---") 
+
+# Affichage de la recherche active
+if st.session_state.recherche_active != "Toutes":
+    st.markdown(f"""
+    <div class="search-active">
+        <h3>🎯 Recherche active : {st.session_state.recherche_active}</h3>
+        <p>Affichage des véhicules correspondant à cette recherche</p>
+    </div>
+    """, unsafe_allow_html=True) 

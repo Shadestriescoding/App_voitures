@@ -275,7 +275,7 @@ if 'config_criteres' not in st.session_state:
     }
 
 # Chargement des données
-df = charger_donnees()
+df, recherches = charger_donnees()
 marques_df, equipements_df = charger_references()
 
 # Barre latérale
@@ -293,10 +293,10 @@ with st.sidebar:
         st.markdown("---")
     
     # Sélection de la recherche active
-    recherches = ["Toutes"] + (df['Notes'].unique().tolist() if not df.empty else [])
+    recherches_keys = list(recherches.keys())
     st.session_state.recherche_active = st.selectbox(
         "Recherche active",
-        recherches,
+        ["Toutes les annonces"] + recherches_keys,
         index=0
     )
     
@@ -428,7 +428,7 @@ elif st.session_state.page == "details" and st.session_state.selected_car is not
     afficher_details_vehicule(df_filtered.iloc[st.session_state.selected_car], st.session_state.selected_car, df)
 
 # Affichage de la recherche active
-if st.session_state.recherche_active != "Toutes":
+if st.session_state.recherche_active != "Toutes les annonces":
     st.markdown(f"""
     <div class="search-active">
         <h3>🎯 Recherche active : {st.session_state.recherche_active}</h3>

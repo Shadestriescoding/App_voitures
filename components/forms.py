@@ -1,6 +1,6 @@
 import streamlit as st
 from datetime import datetime
-from utils.data import sauvegarder_donnees, charger_references
+from utils.data import sauvegarder_donnees, charger_references, sauvegarder_recherche
 
 def afficher_formulaire_ajout(df, marques_df, equipements_df, infos_annonce=None):
     """
@@ -118,7 +118,7 @@ def afficher_formulaire_ajout(df, marques_df, equipements_df, infos_annonce=None
     
     return df
 
-def afficher_formulaire_config(recherches_validees):
+def afficher_formulaire_config(recherches):
     """
     Affiche le formulaire de configuration des critères de recherche.
     """
@@ -132,6 +132,18 @@ def afficher_formulaire_config(recherches_validees):
         "📝 Nom de la recherche",
         help="Donnez un nom à cette configuration pour la sauvegarder"
     )
+    
+    # Affichage des recherches existantes
+    if recherches:
+        st.subheader("Recherches sauvegardées")
+        for nom, config in recherches.items():
+            with st.expander(f"📋 {nom} ({config['date_creation']})"):
+                st.json(config['criteres'])
+                if config['vehicules_associes']:
+                    st.write(f"🚗 {len(config['vehicules_associes'])} véhicules associés")
+                if st.button(f"Charger '{nom}'"):
+                    st.session_state.config_criteres = config['criteres'].copy()
+                    st.rerun()
     
     st.markdown("""
     Définissez vos critères de recherche et leur importance relative pour trouver le véhicule idéal.
@@ -493,9 +505,15 @@ def afficher_formulaire_config(recherches_validees):
     with col1:
         if st.button("💾 Sauvegarder cette configuration", use_container_width=True):
             if nom_recherche:
-                recherches_validees[nom_recherche] = st.session_state.config_criteres.copy()
-                st.success(f"✅ Configuration '{nom_recherche}' sauvegardée!")
-                st.balloons()
+                if nom_recherche in recherches:
+                    if st.checkbox("Cette recherche existe déjà. Voulez-vous la remplacer ?"):
+                        recherches = sauvegarder_recherche(nom_recherche, st.session_state.config_criteres, recherches)
+                        st.success(f"✅ Configuration '{nom_recherche}' mise à jour!")
+                        st.balloons()
+                else:
+                    recherches = sauvegarder_recherche(nom_recherche, st.session_state.config_criteres, recherches)
+                    st.success(f"✅ Configuration '{nom_recherche}' sauvegardée!")
+                    st.balloons()
             else:
                 st.error("❌ Veuillez donner un nom à cette configuration")
     

@@ -25,8 +25,8 @@ Application Streamlit permettant de gérer et visualiser une collection de véhi
 
 1. Clonez ce dépôt :
 ```bash
-git clone https://github.com/votre-username/gestionnaire-vehicules.git
-cd gestionnaire-vehicules
+git clone https://github.com/Shadestriescoding/App_voitures.git
+cd App_voitures
 ```
 
 2. Créez un environnement virtuel (recommandé) :
@@ -47,7 +47,7 @@ pip install -r requirements.txt
 
 4. Lancez l'application :
 ```bash
-streamlit run app.py
+streamlit run streamlit_app.py
 ```
 
 L'application sera accessible à l'adresse : http://localhost:8501
@@ -69,13 +69,13 @@ L'application sera accessible à l'adresse : http://localhost:8501
 1. Créez un compte sur [Streamlit Cloud](https://streamlit.io/cloud)
 2. Connectez votre compte GitHub
 3. Sélectionnez ce dépôt pour le déploiement
-4. L'application sera accessible publiquement
+4. L'application sera accessible publiquement à l'adresse : https://appvoitures-aznirqvwpszinfp7vtf9vv.streamlit.app
 
 ## 📁 Structure du Projet
 
 ```
-gestionnaire-vehicules/
-├── app.py            # Application Streamlit
+App_voitures/
+├── streamlit_app.py  # Application Streamlit
 ├── data.csv          # Base de données
 ├── requirements.txt  # Dépendances
 └── README.md        # Documentation

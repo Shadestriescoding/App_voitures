@@ -1,3 +1,6 @@
-Marque,Modele,Annee,Prix,Consommation,Cout_Assurance,Equipements,Fiabilite
-BMW,E46 330i,2003,12000,9.5,800,"Climatisation, Cuir, GPS",8
-Mercedes,C200,2005,9500,8.2,750,"Climatisation, Régulateur",7 
+Marque,Modele,Annee,Prix,Consommation,Cout_Assurance,Equipements,Fiabilite,Date_Ajout
+BMW,E46 330i,2003,12000,9.5,800,"Climatisation, Cuir, GPS, Jantes 18 pouces",8,2024-03-19 10:00:00
+BMW,E46 320d,2005,8500,6.5,600,"Climatisation, Régulateur, Jantes 17 pouces",7,2024-03-19 10:00:00
+Mercedes,C200 CDI,2006,9500,6.8,750,"Climatisation, Cuir, Régulateur, GPS",7,2024-03-19 10:00:00
+Audi,A4 2.0 TDI,2008,11000,7.2,700,"Climatisation, Xenon, GPS, Cuir",8,2024-03-19 10:00:00
+Volkswagen,Golf 5 GTI,2006,10500,8.5,650,"Climatisation, Cuir, Xenon, Jantes 18 pouces",6,2024-03-19 10:00:00 

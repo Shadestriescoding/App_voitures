@@ -1,44 +1,93 @@
-# Gestionnaire de Véhicules
+# 🚗 Gestionnaire de Véhicules
 
-Une application Streamlit pour gérer et visualiser une collection de véhicules.
+Application Streamlit permettant de gérer et visualiser une collection de véhicules, avec stockage des données dans un fichier CSV.
 
-## Fonctionnalités
+## ✨ Fonctionnalités
 
-- Saisie des informations des véhicules via un formulaire
-- Visualisation des données dans un tableau interactif
-- Graphiques dynamiques avec Plotly
-- Sauvegarde automatique dans un fichier CSV
+- **Saisie des données** via un formulaire intuitif
+  - Marque et modèle du véhicule
+  - Année de mise en circulation (1998-2024)
+  - Prix et coût d'assurance
+  - Consommation moyenne
+  - Équipements
+  - Note de fiabilité
 
-## Installation
+- **Visualisation interactive**
+  - Tableau filtrable par marque et année
+  - Graphiques dynamiques avec Plotly
+  - Statistiques rapides (moyennes)
+
+- **Stockage persistant**
+  - Sauvegarde automatique dans `data.csv`
+  - Format compatible Excel/LibreOffice
+
+## 🚀 Installation
 
 1. Clonez ce dépôt :
 ```bash
-git clone [URL_DU_REPO]
-cd [NOM_DU_REPO]
+git clone https://github.com/votre-username/gestionnaire-vehicules.git
+cd gestionnaire-vehicules
 ```
 
-2. Installez les dépendances :
+2. Créez un environnement virtuel (recommandé) :
+```bash
+# Windows
+python -m venv venv
+venv\Scripts\activate
+
+# Linux/macOS
+python3 -m venv venv
+source venv/bin/activate
+```
+
+3. Installez les dépendances :
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Lancez l'application :
+4. Lancez l'application :
 ```bash
 streamlit run app.py
 ```
 
-## Déploiement sur Streamlit Cloud
+L'application sera accessible à l'adresse : http://localhost:8501
+
+## 📊 Utilisation
+
+1. **Ajout d'un véhicule**
+   - Remplissez le formulaire à gauche
+   - Cliquez sur "Ajouter ce véhicule"
+   - Une confirmation s'affiche
+
+2. **Consultation des données**
+   - Utilisez les filtres du tableau
+   - Explorez les différents graphiques
+   - Consultez les statistiques
+
+## 🌍 Déploiement sur Streamlit Cloud
 
 1. Créez un compte sur [Streamlit Cloud](https://streamlit.io/cloud)
 2. Connectez votre compte GitHub
-3. Déployez l'application en sélectionnant ce dépôt
+3. Sélectionnez ce dépôt pour le déploiement
+4. L'application sera accessible publiquement
 
-## Structure du Projet
+## 📁 Structure du Projet
 
-- `app.py` : Application Streamlit principale
-- `requirements.txt` : Liste des dépendances
-- `data.csv` : Fichier de stockage des données
+```
+gestionnaire-vehicules/
+├── app.py            # Application Streamlit
+├── data.csv          # Base de données
+├── requirements.txt  # Dépendances
+└── README.md        # Documentation
+```
 
-## Contribution
+## 🤝 Contribution
 
-Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou une pull request. 
+Les contributions sont les bienvenues ! N'hésitez pas à :
+- Ouvrir une issue pour signaler un bug
+- Proposer une nouvelle fonctionnalité
+- Soumettre une pull request
+
+## 📝 Licence
+
+Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails. 
